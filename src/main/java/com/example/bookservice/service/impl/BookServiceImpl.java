@@ -1,11 +1,13 @@
 package com.example.bookservice.service.impl;
 
+import com.example.bookservice.dto.AuthorDTO;
+import com.example.bookservice.dto.BookDTO;
+import com.example.bookservice.dto.BookDetailsDTO;
+import com.example.bookservice.feignclient.AuthorFeignClient;
 import com.example.bookservice.mapper.BookMapper;
-import com.example.bookservice.mapper.InventoryMapper;
-import com.example.bookservice.model.Author;
 import com.example.bookservice.model.Book;
-import com.example.bookservice.model.BookDetails;
-import com.example.bookservice.service.AuthorService;
+import com.example.bookservice.repository.BookRepository;
+import com.example.bookservice.repository.InventoryRepository;
 import com.example.bookservice.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,23 +19,27 @@ public class BookServiceImpl implements BookService {
     private BookMapper bookMapper;
 
     @Autowired
-    private InventoryMapper inventoryMapper;
+    private BookRepository bookRepository;
 
     @Autowired
-    private AuthorService authorService;
+    private InventoryRepository inventoryRepository;
+
+    @Autowired
+    private AuthorFeignClient authorFeignClient;
 
     @Override
-    public Book create(Book book) {
-        return bookMapper.create(book);
+    public BookDTO create(BookDTO bookDTO) {
+        Book book = bookRepository.create(bookMapper.mapBookDTOToBook(bookDTO));
+        return bookMapper.mapBookToBookDTO(book);
     }
 
     @Override
-    public BookDetails findById(String uuid) {
-        Book book = bookMapper.findById(uuid);
+    public BookDetailsDTO findById(String uuid) {
+        Book book = bookRepository.findById(uuid);
         if (book != null) {
-            Author author = authorService.getAuthorById(book.getAuthorUuid()).getBody().getAuthors().get(0);
-            int quantity = inventoryMapper.getBookQuantity(uuid);
-            return new BookDetails(book, author, quantity);
+            AuthorDTO authorDTO = authorFeignClient.getAuthorById(book.getAuthorUuid()).getBody().getAuthorDTO();
+            int quantity = inventoryRepository.getBookQuantity(uuid);
+            return new BookDetailsDTO(bookMapper.mapBookToBookDTO(book), authorDTO, quantity);
         }
         return null;
     }

@@ -1,11 +1,11 @@
 package com.example.bookservice.service;
 
-import com.example.bookservice.model.Book;
-import com.example.bookservice.model.BookDetails;
+import com.example.bookservice.dto.BookDTO;
+import com.example.bookservice.dto.BookDetailsDTO;
 
 public interface BookService {
 
-    Book create(Book book);
+    BookDTO create(BookDTO bookDTO);
 
-    BookDetails findById(String uuid);
+    BookDetailsDTO findById(String uuid);
 }

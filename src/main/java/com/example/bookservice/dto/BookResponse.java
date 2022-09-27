@@ -1,6 +1,5 @@
 package com.example.bookservice.dto;
 
-import com.example.bookservice.model.Book;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BookResponse {
 
-    private Book book;
+    private BookDTO bookDTO;
 
     private String message;
 }

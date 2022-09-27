@@ -1,43 +1,53 @@
 package com.example.bookservice.mapper;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.Table;
-import com.example.bookservice.converter.BookConverter;
+import com.example.bookservice.dto.BookDTO;
 import com.example.bookservice.model.Book;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class BookMapper {
 
-    private final String TABLE_NAME = "Book";
+    public static final String BOOK_UUID = "Uuid";
 
-    private final DynamoDB dynamoDB;
+    public static final String BOOK_TITLE = "Title";
 
-    private final Table table;
+    public static final String BOOK_ISBN = "Isbn";
 
-    private final BookConverter bookConverter;
+    public static final String BOOK_AUTHOR_UUID = "AuthorUuid";
 
-    @Autowired
-    public BookMapper(AmazonDynamoDB amazonDynamoDB, BookConverter bookConverter) {
-        this.bookConverter = bookConverter;
-        dynamoDB = new DynamoDB(amazonDynamoDB);
-        table = dynamoDB.getTable(TABLE_NAME);
+    public Item mapBookToItem(Book book) {
+        return new Item()
+                .withPrimaryKey(BOOK_UUID, book.getUuid())
+                .withString(BOOK_TITLE, book.getTitle())
+                .withString(BOOK_ISBN, book.getIsbn())
+                .withString(BOOK_AUTHOR_UUID, book.getAuthorUuid());
     }
 
-    public Book create(Book book) {
-        table.putItem(bookConverter.convertBookToItem(book));
-        return book;
+    public Book mapItemToBook(Item item) {
+        return Book.builder()
+                .uuid(item.getString(BOOK_UUID))
+                .title(item.getString(BOOK_TITLE))
+                .isbn(item.getString(BOOK_ISBN))
+                .authorUuid(item.getString(BOOK_AUTHOR_UUID))
+                .build();
     }
 
-    public Book findById(String uuid) {
-        Item item = table.getItem(bookConverter.BOOK_UUID, uuid);
-        if (item != null) {
-            return bookConverter.convertItemToBook(item);
-        } else {
-            return null;
-        }
+    public BookDTO mapBookToBookDTO(Book book) {
+        return BookDTO.builder()
+                .uuid(book.getUuid())
+                .title(book.getTitle())
+                .isbn(book.getIsbn())
+                .authorUuid(book.getAuthorUuid())
+                .build();
+    }
+
+    public Book mapBookDTOToBook(BookDTO bookDTO) {
+        return Book.builder()
+                .uuid(bookDTO.getUuid())
+                .title(bookDTO.getTitle())
+                .isbn(bookDTO.getIsbn())
+                .authorUuid(bookDTO.getAuthorUuid())
+                .build();
     }
 }

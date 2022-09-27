@@ -1,27 +1,24 @@
-package com.example.bookservice.mapper;
+package com.example.bookservice.repository.impl;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
-import com.example.bookservice.converter.BookConverter;
+import com.example.bookservice.mapper.BookMapper;
+import com.example.bookservice.repository.InventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.Iterator;
 
-@Component
-public class InventoryMapper {
-
-    private final String TABLE_NAME = "Inventory";
-
-    private final String INDEX_NAME = "BookQuantityIndex";
+@Repository
+public class InventoryRepositoryDynamoDB implements InventoryRepository {
 
     private final DynamoDB dynamoDB;
 
     private final Table table;
 
     @Autowired
-    public InventoryMapper(AmazonDynamoDB amazonDynamoDB, BookConverter bookConverter) {
+    public InventoryRepositoryDynamoDB(AmazonDynamoDB amazonDynamoDB, BookMapper bookConverter) {
         dynamoDB = new DynamoDB(amazonDynamoDB);
         table = dynamoDB.getTable(TABLE_NAME);
     }
@@ -31,11 +28,11 @@ public class InventoryMapper {
 
         Index index = table.getIndex(INDEX_NAME);
         QuerySpec querySpec = new QuerySpec()
-                .withHashKey("BookUuid", bookUuid);
+                .withHashKey(InventoryRepository.INVENTORY_BOOK_UUID, bookUuid);
         ItemCollection<QueryOutcome> items = index.query(querySpec);
         Iterator<Item> iterator = items.iterator();
         while (iterator.hasNext()) {
-            quantity += iterator.next().getInt("Quantity");
+            quantity += iterator.next().getInt(InventoryRepository.INVENTORY_QUANTITY);
         }
 
         return quantity;

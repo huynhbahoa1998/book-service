@@ -1,15 +1,21 @@
 package com.example.bookservice.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookDetailsResponse {
+@Builder
+public class BookDTO {
 
-    private BookDetailsDTO bookDetailsDTO;
+    private String uuid;
 
-    private String message;
+    private String title;
+
+    private String isbn;
+
+    private String authorUuid;
 }
