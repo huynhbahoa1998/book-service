@@ -1,7 +1,9 @@
-FROM adoptopenjdk/openjdk11:latest
+FROM openjdk:11
 
-ENV ENV_STR=""
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=90 -XshowSettings:vm -Djava.security.egd=file:/dev/./urandom -Dnetworkaddress.cache.ttl=1"
+ENV SPRING_OPTS=""
+ENV APP_ARGS=""
 
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar", "${ENV_STR}"]
+ADD target/*.jar ./app.jar
+
+ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar $SPRING_OPTS app.jar $APP_ARGS"]
